@@ -19,16 +19,18 @@ function boogaloo (directory, callback) {
       delete slides.style
     }
     var rendered = map(slides, function (slide, id) {
-      var renderedFiles = slide.files.map(function (file) {
+      var renderedFiles = slide.files.reduce(function (rendered, file) {
         switch (file.extension) {
           case '.md':
-            return renderSlide(file)
+            return rendered.concat(renderSlide(file))
           case '.jpg':
           case '.jpeg':
-            return renderImage(file)
-        }  
-      })
-      return wrapSlide(id, renderedFiles.join('\n'))
+            return rendered.concat(renderImage(file))
+          default:
+            return rendered
+        }
+      }, [])
+      return renderedFiles.some(function (x) { return x}) ? wrapSlide(id, renderedFiles.join('\n')) : ''
     })
 
     var page = wrapPage({
@@ -45,7 +47,9 @@ function boogaloo (directory, callback) {
 function getSources(directory, callback) {
   return fs.readdir(directory, function (err, files) {
     if (err) { return callback(err) }
-    var resources = files.map(function (file) {
+    var resources = 
+      files
+      .map(function (file) {
         var ext = path.extname(file)
         return {
           directory: directory,
@@ -53,6 +57,9 @@ function getSources(directory, callback) {
           name: path.basename(file, ext),
           extension: ext.toLowerCase()
         }
+      })
+      .filter(function (file) {
+        return /^\d+$/.test(file.name) 
       })
       .reduce(groupBySlide, {})
     callback(null, resources)
@@ -93,14 +100,14 @@ function wrapSlide(id, contents) {
 }
 
 function wrapPage(contents) {
-  var template = fs.readFileSync('./index.html').toString()
+  var template = fs.readFileSync(path.join(__dirname, 'index.html')).toString()
   template = template.replace('{{slides}}', contents.slides || '')
   template = template.replace('{{title}}', contents.title || '')
   template = template.replace('{{style}}', contents.style || '')
   template = template.replace('{{generator}}', contents.generator || '')
   template = template.replace('{{repository}}', contents.repository || '')
-  var show_js = fs.readFileSync('./show.js').toString()
-  var style_css = fs.readFileSync('./base.css').toString()
+  var show_js = fs.readFileSync(path.join(__dirname, 'show.js')).toString()
+  var style_css = fs.readFileSync(path.join(__dirname, 'base.css')).toString()
   template = template.replace('<link rel="stylesheet" href="base.css">', '<style>' + style_css + '</style>')
   template = template.replace('<script src="show.js"></script>','<script>'+show_js+'</script>')
   return template
