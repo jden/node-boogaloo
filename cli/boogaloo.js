@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env node
 var path = require('path')
 var boogaloo = require('../.')
 var fs = require('fs')

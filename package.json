@@ -1,7 +1,7 @@
 {
   "name": "boogaloo",
   "author": "jden <jason@denizac.org>",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "directory-based presentation software",
   "keywords": [
     "slide",
