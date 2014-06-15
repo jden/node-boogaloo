@@ -20,8 +20,8 @@ function getSlideIdFromHash() {
 
 // bind keys for next / prev
 
-document.addEventListener('keypress', function (e) {
-  switch (e.key) {
+document.addEventListener('keyup', function (e) {
+  switch (e.key || e.keyIdentifier) {
     case 'Left':
     case 'PageUp':
       changeSlide(-1)

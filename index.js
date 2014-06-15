@@ -99,13 +99,11 @@ function wrapPage(contents) {
   template = template.replace('{{style}}', contents.style || '')
   template = template.replace('{{generator}}', contents.generator || '')
   template = template.replace('{{repository}}', contents.repository || '')
+  var show_js = fs.readFileSync('./show.js').toString()
+  var style_css = fs.readFileSync('./base.css').toString()
+  template = template.replace('<link rel="stylesheet" href="base.css">', '<style>' + style_css + '</style>')
+  template = template.replace('<script src="show.js"></script>','<script>'+show_js+'</script>')
   return template
 }
-
-boogaloo('./demo', function (err, value) {
-  if (err) { return console.error(err) }
-  fs.writeFileSync('./out.html', value)
-  console.log('wrote out.html')
-})
 
 module.exports = boogaloo
